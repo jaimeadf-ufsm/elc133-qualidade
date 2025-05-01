@@ -191,6 +191,58 @@ def test_reversibility_check_with_single_outgoing_final_transition():
 
     assert is_machine_reversible(machine) == False
 
+def test_reversibility_check_with_missing_required_initial_transition():
+    machine = QuintupleTuringMachineDefinition(
+        tapes=1,
+        alphabet=['B'],
+        transitions=[
+            QuintupleTransition(
+                source_state='1',
+                destination_state='2',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.STAY)
+                ]
+            ),
+            QuintupleTransition(
+                source_state='2',
+                destination_state='3',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.STAY)
+                ]
+            )
+        ],
+        initial_state='1',
+        final_states=['3']
+    )
+
+    assert is_machine_reversible(machine) == False
+
+def test_reversibility_check_with_missing_required_final_transition():
+    machine = QuintupleTuringMachineDefinition(
+        tapes=1,
+        alphabet=['B'],
+        transitions=[
+            QuintupleTransition(
+                source_state='1',
+                destination_state='2',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.RIGHT)
+                ]
+            ),
+            QuintupleTransition(
+                source_state='2',
+                destination_state='3',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.RIGHT)
+                ]
+            )
+        ],
+        initial_state='1',
+        final_states=['3']
+    )
+
+    assert is_machine_reversible(machine) == False
+
 def test_reversibile_machine_creation():
     quintuple_machine = QuintupleTuringMachineDefinition(
         tapes=1,
