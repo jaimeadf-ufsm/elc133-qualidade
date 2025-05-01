@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import re
 
 from direction import Direction
+from state import format_state_for_code
 from mark import format_mark_for_code
 
 @dataclass
@@ -12,10 +13,13 @@ class QuintupleAct:
     direction: Direction
 
     def to_code(self) -> str:
-        return 'QuintupleAct(' \
-            f'{format_mark_for_code(self.read)}, ' \
-            f'{format_mark_for_code(self.write)}, ' \
-            f'{self.direction.to_code()})'
+        return (
+            'QuintupleAct('
+            f'{format_mark_for_code(self.read)}, '
+            f'{format_mark_for_code(self.write)}, '
+            f'{self.direction.to_code()}'
+            ')'
+        )
 
 @dataclass
 class QuintupleTransition:
@@ -25,8 +29,8 @@ class QuintupleTransition:
 
     def to_code(self) -> str:
         result = f'QuintupleTransition(\n'
-        result += f"    source_state='{self.source_state}',\n"
-        result += f"    destination_state='{self.destination_state}',\n"
+        result += f"    source_state={format_state_for_code(self.source_state)},\n"
+        result += f"    destination_state={format_state_for_code(self.destination_state)},\n"
         result += f"    acts=[\n"
 
         for act in self.acts:
@@ -75,6 +79,27 @@ class QuintupleTuringMachineDefinition:
     transitions: List[QuintupleTransition]
     initial_state: str
     final_states: List[str]
+
+    def to_code(self) -> str:
+        result = f'QuintupleTuringMachineDefinition(\n'
+        result += f"    tapes={self.tapes},\n"
+        result += f"    alphabet=[{', '.join(map(format_mark_for_code, self.alphabet))}],\n"
+        result += f"    transitions=[\n"
+
+        for transition in self.transitions:
+            lines = transition.to_code().splitlines()
+            
+            for line in lines[:-1]:
+                result += f"        {line}\n"
+            
+            result += f"        {lines[-1]},\n"
+        
+        result += f"    ],\n"
+        result += f"    initial_state={format_state_for_code(self.initial_state)},\n"
+        result += f"    final_states=[{', '.join(map(format_state_for_code, self.final_states))}]\n"
+        result += f")"
+
+        return result
 
     def parse(stream: TextIO) -> Self:
         quintuple_machine_definition = QuintupleTuringMachineDefinition(
