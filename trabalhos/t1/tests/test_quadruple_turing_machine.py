@@ -5,7 +5,7 @@ from quadruple_turing_machine import QuadrupleTransition, QuadrupleAct, Quadrupl
 from direction import Direction
 
 @pytest.fixture
-def quadruple_machine_definition():
+def definition():
     return QuadrupleTuringMachineDefinition(
         tapes=2,
         alphabet=["0", "1"],
@@ -172,14 +172,74 @@ def test_transition_code_representation():
     )
 ])
 def test_definition_transition_matching(
-    quadruple_machine_definition: QuadrupleTuringMachineDefinition,
+    definition: QuadrupleTuringMachineDefinition,
     current_state: str,
     data: List[Any],
     expected_transition: QuadrupleTransition) -> None:
 
-    transition = quadruple_machine_definition.find_matching_transition(current_state, data)
+    assert definition.find_matching_transition(current_state, data) == expected_transition
 
-    assert transition == expected_transition
+def test_definition_code_representation(definition: QuadrupleTuringMachineDefinition) -> None:
+    print(definition.to_code())
+    
+    assert definition.to_code() == (
+        "QuadrupleTuringMachineDefinition(\n"
+        "    tapes=2,\n"
+        "    alphabet=['0', '1'],\n"
+        "    transitions=[\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='1',\n"
+        "            destination_state='2',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.shift(Direction.STAY),\n"
+        "                QuadrupleAct.read_write('0', '0'),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='1',\n"
+        "            destination_state='2',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.read_write('0', '1'),\n"
+        "                QuadrupleAct.read_write('1', '1'),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='1',\n"
+        "            destination_state='2',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.read_write('1', '0'),\n"
+        "                QuadrupleAct.read_write('1', '1'),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='1',\n"
+        "            destination_state='3',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.shift(Direction.STAY),\n"
+        "                QuadrupleAct.read_write('B', 'B'),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='2',\n"
+        "            destination_state='1',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.shift(Direction.RIGHT),\n"
+        "                QuadrupleAct.shift(Direction.RIGHT),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuadrupleTransition(\n"
+        "            source_state='3',\n"
+        "            destination_state='4',\n"
+        "            acts=[\n"
+        "                QuadrupleAct.shift(Direction.LEFT),\n"
+        "                QuadrupleAct.shift(Direction.LEFT),\n"
+        "            ]\n"
+        "        ),\n"
+        "    ],\n"
+        "    initial_state='1',\n"
+        "    final_states=['4']\n"
+        ")"
+    )
     
 @pytest.mark.parametrize("transitions, inputs, outputs, heads, final_state, accepted, rejected, halted", [
     (
@@ -232,7 +292,7 @@ def test_definition_transition_matching(
     )
 ])
 def test_simulator_execution(
-    quadruple_machine_definition: QuadrupleTuringMachineDefinition,
+    definition: QuadrupleTuringMachineDefinition,
     transitions: List[int],
     inputs: List[Dict[int, Any]],
     outputs: List[Dict[int, Any]],
@@ -241,18 +301,18 @@ def test_simulator_execution(
     accepted: bool,
     rejected: bool,
     halted: bool) -> None:
-    simulator = QuadrupleTuringMachineSimulator(quadruple_machine_definition)
+    simulator = QuadrupleTuringMachineSimulator(definition)
 
     for i, content in enumerate(inputs):
         simulator.tapes[i].content = content
     
-    assert simulator.current_state == quadruple_machine_definition.initial_state
+    assert simulator.current_state == definition.initial_state
 
     for i, expected_transition in enumerate(transitions):
         if expected_transition == None:
             assert simulator.step() == None
         else:
-            assert simulator.step() == quadruple_machine_definition.transitions[expected_transition]
+            assert simulator.step() == definition.transitions[expected_transition]
     
     assert simulator.current_state == final_state
 

@@ -274,4 +274,55 @@ def test_definition_parse() -> None:
 
     assert QuintupleTuringMachineDefinition.parse(stream) == expected_definition
     
+def test_definition_code_representation() -> None:
+    machine = QuintupleTuringMachineDefinition(
+        tapes=2,
+        alphabet=['B'],
+        transitions=[
+            QuintupleTransition(
+                source_state='1',
+                destination_state='2',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.RIGHT),
+                    QuintupleAct(0, '1', Direction.RIGHT)
+                ]
+            ),
+            QuintupleTransition(
+                source_state='2',
+                destination_state='3',
+                acts=[
+                    QuintupleAct('B', 'B', Direction.STAY),
+                    QuintupleAct(0, 0, Direction.LEFT)
+                ]
+            )
+        ],
+        initial_state='1',
+        final_states=['3']
+    )
 
+    assert machine.to_code() == (
+        "QuintupleTuringMachineDefinition(\n"
+        "    tapes=2,\n"
+        "    alphabet=['B'],\n"
+        "    transitions=[\n"
+        "        QuintupleTransition(\n"
+        "            source_state='1',\n"
+        "            destination_state='2',\n"
+        "            acts=[\n"
+        "                QuintupleAct('B', 'B', Direction.RIGHT),\n"
+        "                QuintupleAct(0, '1', Direction.RIGHT),\n"
+        "            ]\n"
+        "        ),\n"
+        "        QuintupleTransition(\n"
+        "            source_state='2',\n"
+        "            destination_state='3',\n"
+        "            acts=[\n"
+        "                QuintupleAct('B', 'B', Direction.STAY),\n"
+        "                QuintupleAct(0, 0, Direction.LEFT),\n"
+        "            ]\n"
+        "        ),\n"
+        "    ],\n"
+        "    initial_state='1',\n"
+        "    final_states=['3']\n"
+        ")"
+    )
