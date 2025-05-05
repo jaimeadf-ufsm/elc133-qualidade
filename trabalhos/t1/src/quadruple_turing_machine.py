@@ -1,5 +1,6 @@
 from typing import Any, Optional, List
 from dataclasses import dataclass
+from collections import Counter
 from enum import Enum, auto
 
 from direction import Direction
@@ -11,7 +12,19 @@ class QuadrupleActType(Enum):
     SHIFT = auto()
     READ_WRITE = auto()
 
-@dataclass
+    def __lt__(self, other: Any) -> bool:
+        if not isinstance(other, QuadrupleActType):
+            return False
+
+        return self.value < other.value
+
+    def __gt__(self, other: Any) -> bool:
+        if not isinstance(other, QuadrupleActType):
+            return False
+
+        return self.value > other.value
+
+@dataclass(order=True)
 class QuadrupleAct:
     kind: QuadrupleActType
     direction: Optional[Direction] = None
@@ -41,7 +54,7 @@ class QuadrupleAct:
             write=write
         )
 
-@dataclass
+@dataclass(order=True)
 class QuadrupleTransition:
     source_state: str
     destination_state: str
@@ -126,6 +139,18 @@ class QuadrupleTuringMachineDefinition:
         result += f")"
 
         return result
+    
+    def __eq__(self, value) -> bool:
+        if not isinstance(value, QuadrupleTuringMachineDefinition):
+            return False
+
+        return (
+            self.tapes == value.tapes and
+            Counter(self.alphabet) == Counter(value.alphabet) and
+            sorted(self.transitions) == sorted(value.transitions) and
+            self.initial_state == value.initial_state and
+            Counter(self.final_states) == Counter(value.final_states)
+        )
 
 class QuadrupleTuringMachineSimulator:
     definition: QuadrupleTuringMachineDefinition

@@ -180,8 +180,6 @@ def test_definition_transition_matching(
     assert definition.find_matching_transition(current_state, data) == expected_transition
 
 def test_definition_code_representation(definition: QuadrupleTuringMachineDefinition) -> None:
-    print(definition.to_code())
-    
     assert definition.to_code() == (
         "QuadrupleTuringMachineDefinition(\n"
         "    tapes=2,\n"
@@ -240,6 +238,66 @@ def test_definition_code_representation(definition: QuadrupleTuringMachineDefini
         "    final_states=['4']\n"
         ")"
     )
+
+def test_definition_equality(definition: QuadrupleTuringMachineDefinition) -> None:
+    definition2 = QuadrupleTuringMachineDefinition(
+        tapes=2,
+        alphabet=["1", "0"],
+        transitions=[
+            QuadrupleTransition(
+                source_state="1",
+                destination_state="2",
+                acts=[
+                    QuadrupleAct.read_write("0", "1"),
+                    QuadrupleAct.read_write("1", "1")
+                ]
+            ),
+            QuadrupleTransition(
+                source_state="1",
+                destination_state="2",
+                acts=[
+                    QuadrupleAct.read_write("1", "0"),
+                    QuadrupleAct.read_write("1", "1")
+                ]
+            ),
+            QuadrupleTransition(
+                source_state="1",
+                destination_state="2",
+                acts=[
+                    QuadrupleAct.shift(Direction.STAY),
+                    QuadrupleAct.read_write("0", "0")
+                ]
+            ),
+            QuadrupleTransition(
+                source_state="1",
+                destination_state="3",
+                acts=[
+                    QuadrupleAct.shift(Direction.STAY),
+                    QuadrupleAct.read_write("B", "B")
+                ]
+            ),
+            QuadrupleTransition(
+                source_state="2",
+                destination_state="1",
+                acts=[
+                    QuadrupleAct.shift(Direction.RIGHT),
+                    QuadrupleAct.shift(Direction.RIGHT)
+                ]
+            ),
+            QuadrupleTransition(
+                source_state="3",
+                destination_state="4",
+                acts=[
+                    QuadrupleAct.shift(Direction.LEFT),
+                    QuadrupleAct.shift(Direction.LEFT)
+                ]
+            ),
+        ],
+        initial_state="1",
+        final_states=["4"]
+    )
+
+    assert definition == definition2
     
 @pytest.mark.parametrize("transitions, inputs, outputs, heads, final_state, accepted, rejected, halted", [
     (

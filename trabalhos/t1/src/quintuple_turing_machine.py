@@ -1,12 +1,13 @@
 from typing import Any, Self, List, TextIO
 from dataclasses import dataclass
+from collections import Counter
 import re
 
 from direction import Direction
 from state import format_state_for_code
 from mark import format_mark_for_code
 
-@dataclass
+@dataclass(order=True)
 class QuintupleAct:
     read: Any
     write: Any
@@ -21,7 +22,7 @@ class QuintupleAct:
             ')'
         )
 
-@dataclass
+@dataclass(order=True)
 class QuintupleTransition:
     source_state: int
     destination_state: int
@@ -100,6 +101,18 @@ class QuintupleTuringMachineDefinition:
         result += f")"
 
         return result
+    
+    def __eq__(self, value) -> bool:
+        if not isinstance(value, QuintupleTuringMachineDefinition):
+            return False
+
+        return (
+            self.tapes == value.tapes and
+            Counter(self.alphabet) == Counter(value.alphabet) and
+            sorted(self.transitions) == sorted(value.transitions) and
+            self.initial_state == value.initial_state and
+            Counter(self.final_states) == Counter(value.final_states)
+        )
 
     def parse(stream: TextIO) -> Self:
         quintuple_machine_definition = QuintupleTuringMachineDefinition(

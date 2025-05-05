@@ -1,6 +1,7 @@
 import pytest
 
 from io import StringIO
+from collections import Counter
 
 from direction import Direction
 from quintuple_turing_machine import QuintupleAct, QuintupleTransition, QuintupleTuringMachineDefinition
